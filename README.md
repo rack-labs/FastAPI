@@ -105,6 +105,36 @@ router = APIRouter(
 @router.get("/{item_id}")
 def read_item(item_id: int, q: Union[str, None] = None):
     return {"item_id": item_id, "q": q}
+```
 
+### controller에 users 라우트 엔드포인트 추가
+
+```python
+# main.py (users 추가)
+    from fastapi import FastAPI
+    from controller import items, users #
+
+    app = FastAPI()
+    app.include_router(items.router)
+    app.include_router(users.router) #
+
+    @app.get("/")
+    def read_root():
+        return{"Hello":"world"}
+
+
+# users.py (Uvicorn 없이 간단히 작성)
+    from fastapi import APIRouter
+
+    router = APIRouter(
+        prefix="/users",
+        tags=["users"],
+        responses={404: {"description":"Not found"}},
+    )
+
+    @router.get("/{user_id}")
+    def read_user(user_id: int):
+        return {"user_id": user_id}
 
 ```
+
