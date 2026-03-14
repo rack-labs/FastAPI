@@ -1,7 +1,8 @@
 # FastAPI
 fastapi-team-starter
+## basic FastAPI starter app
 
-## git ignore 대상
+### git ignore 대상
 ```gitignore
 .venv/
 __pycache__/
@@ -9,7 +10,7 @@ __pycache__/
 
 ```
 
-## 가상환경 실행
+### 가상환경 실행
 ```bash
 # 가상환경 설치
 python -m venv .venv
@@ -22,7 +23,7 @@ deactivate
 ```
 
 
-## fastapi, uvicorn 설치
+### fastapi, uvicorn 설치
 ```bash
 # 패키지 설치
 pip install fastapi
@@ -35,7 +36,7 @@ pip list
 pip freeze > requirements.txt
 ```
 
-## fastapi 활용 간단한 코드 작성(main.py)
+### fastapi 활용 간단한 코드 작성(main.py)
 ```python
 from fastapi import FastAPI
 from typing import Union
@@ -50,7 +51,7 @@ def read_root():
 def read_item(item_id: int, q: Union[str, None] = None):
     return {"item_id": item_id, "q": q}
 ```
-## uvicorn을 이용해 실행
+### uvicorn을 이용해 실행
 ```bash
 uvicorn main:app --reload
     # main: main.py를 지칭
@@ -65,4 +66,45 @@ http://127.0.0.1:8000/items/1?q=hi
 
 # swagger (API를 설명하고 문서화하는 생태계. 표준 이름은 OpenAPI)
 http://127.0.0.1:8000/docs
+```
+
+## controller expansion
+컨트롤러(main.py)가 방대해지는 것을 방지한다.
+
+### main.py의 read_item을 별도 컨트롤러(라우터)로 변경
+```python
+# ===== main.py =====
+    from fastapi import FastAPI
+    from controller import items #추가
+    # from typing import Union
+
+    app = FastAPI()
+    app.include_router(items.router) #추가
+
+    @app.get("/")
+    def read_root():
+        return{"Hello":"world"}
+
+    # -> /controller/items.py로 이관
+    # @app.get("/items/{item_id}") 
+    # def read_item(item_id: int, q: Union[str, None] = None):
+    #     return {"item_id": item_id, "q": q}
+
+# ===== /controller/__init__.py ===== (최근 버전에서는 안만들어줘도 됨)
+
+# ===== /controller/items.py ===== 
+from typing import Union
+from fastapi import APIRouter
+
+router = APIRouter(
+    prefix="/items",
+    tags=["items"],
+    responses={404: {"description":"Not found"}},
+)
+
+@router.get("/{item_id}")
+def read_item(item_id: int, q: Union[str, None] = None):
+    return {"item_id": item_id, "q": q}
+
+
 ```
