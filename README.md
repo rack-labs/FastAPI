@@ -1,2 +1,0 @@
-# FastAPI
-fastapi-team-starter
